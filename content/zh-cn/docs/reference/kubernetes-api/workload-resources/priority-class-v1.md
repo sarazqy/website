@@ -518,7 +518,7 @@ PATCH /apis/scheduling.k8s.io/v1/priorityclasses/{name}
 
   name of the PriorityClass
 -->
-- **name** （*路径参数*）: string，必须
+- **name** （*路径参数*）: string，必需
 
   PriorityClass 名称
 
