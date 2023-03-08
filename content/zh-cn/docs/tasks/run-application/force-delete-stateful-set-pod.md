@@ -1,5 +1,5 @@
 ---
-title: 强制删除 StatefulSet 中的 Pods
+title: 强制删除 StatefulSet 中的 Pod
 content_type: task
 weight: 70
 ---
@@ -17,15 +17,18 @@ weight: 70
 
 <!-- overview -->
 <!--
-This page shows how to delete Pods which are part of a {{< glossary_tooltip text="stateful set" term_id="StatefulSet" >}}, and explains the considerations to keep in mind when doing so.
+This page shows how to delete Pods which are part of a
+{{< glossary_tooltip text="stateful set" term_id="StatefulSet" >}},
+and explains the considerations to keep in mind when doing so.
 -->
 本文介绍如何删除 {{< glossary_tooltip text="StatefulSet" term_id="StatefulSet" >}}
-管理的 Pods，并解释这样操作时需要记住的注意事项。
+管理的 Pod，并解释这样操作时需要记住的注意事项。
 
 ## {{% heading "prerequisites" %}}
 
 <!--
-* This is a fairly advanced task and has the potential to violate some of the properties inherent to StatefulSet.
+* This is a fairly advanced task and has the potential to violate some of the properties
+  inherent to StatefulSet.
 * Before proceeding, make yourself familiar with the considerations enumerated below.
 -->
 * 这是一项相当高级的任务，并且可能会违反 StatefulSet 固有的某些属性。
@@ -36,18 +39,28 @@ This page shows how to delete Pods which are part of a {{< glossary_tooltip text
 <!--
 ## StatefulSet considerations
 
-In normal operation of a StatefulSet, there is **never** a need to force delete a StatefulSet Pod. The [StatefulSet controller](/docs/concepts/workloads/controllers/statefulset/) is responsible for creating, scaling and deleting members of the StatefulSet. It tries to ensure that the specified number of Pods from ordinal 0 through N-1 are alive and ready. StatefulSet ensures that, at any time, there is at most one Pod with a given identity running in a cluster. This is referred to as *at most one* semantics provided by a StatefulSet.
+In normal operation of a StatefulSet, there is **never** a need to force delete a StatefulSet Pod.
+The [StatefulSet controller](/docs/concepts/workloads/controllers/statefulset/) is responsible for
+creating, scaling and deleting members of the StatefulSet. It tries to ensure that the specified
+number of Pods from ordinal 0 through N-1 are alive and ready. StatefulSet ensures that, at any time,
+there is at most one Pod with a given identity running in a cluster. This is referred to as
+*at most one* semantics provided by a StatefulSet.
 -->
 ## StatefulSet 注意事项
 
 在 StatefulSet 的正常操作中，**永远不**需要强制删除 StatefulSet 管理的 Pod。
 [StatefulSet 控制器](/zh-cn/docs/concepts/workloads/controllers/statefulset/)负责创建、
-扩缩和删除 StatefulSet 管理的 Pods。它尝试确保指定数量的从序数 0 到 N-1 的 Pod
+扩缩和删除 StatefulSet 管理的 Pod。它尝试确保指定数量的从序数 0 到 N-1 的 Pod
 处于活跃状态并准备就绪。StatefulSet 确保在任何时候，集群中最多只有一个具有给定标识的 Pod。
-这就是所谓的由 StatefulSet 提供的*最多一个（At Most One）*的语义。
+这就是所谓的由 StatefulSet 提供的**最多一个（At Most One）** Pod 的语义。
 
 <!--
-Manual force deletion should be undertaken with caution, as it has the potential to violate the at most one semantics inherent to StatefulSet. StatefulSets may be used to run distributed and clustered applications which have a need for a stable network identity and stable storage. These applications often have configuration which relies on an ensemble of a fixed number of members with fixed identities. Having multiple members with the same identity can be disastrous and may lead to data loss (e.g. split brain scenario in quorum-based systems).
+Manual force deletion should be undertaken with caution, as it has the potential to violate the
+at most one semantics inherent to StatefulSet. StatefulSets may be used to run distributed and
+clustered applications which have a need for a stable network identity and stable storage.
+These applications often have configuration which relies on an ensemble of a fixed number of
+members with fixed identities. Having multiple members with the same identity can be disastrous
+and may lead to data loss (e.g. split brain scenario in quorum-based systems).
 -->
 应谨慎进行手动强制删除操作，因为它可能会违反 StatefulSet 固有的至多一个的语义。
 StatefulSets 可用于运行分布式和集群级的应用，这些应用需要稳定的网络标识和可靠的存储。
@@ -59,7 +72,7 @@ StatefulSets 可用于运行分布式和集群级的应用，这些应用需要�
 
 You can perform a graceful pod deletion with the following command:
 -->
-## 删除 Pods   {#delete-pods}
+## 删除 Pod   {#delete-pods}
 
 你可以使用下面的命令执行体面地删除 Pod:
 
@@ -68,15 +81,20 @@ kubectl delete pods <pod>
 ```
 
 <!--
-For the above to lead to graceful termination, the Pod **must not** specify a `pod.Spec.TerminationGracePeriodSeconds` of 0. The practice of setting a `pod.Spec.TerminationGracePeriodSeconds` of 0 seconds is unsafe and strongly discouraged for StatefulSet Pods. Graceful deletion is safe and will ensure that the [Pod shuts down gracefully](/docs/user-guide/pods/#termination-of-pods) before the kubelet deletes the name from the apiserver.
+For the above to lead to graceful termination, the Pod **must not** specify a
+`pod.Spec.TerminationGracePeriodSeconds` of 0. The practice of setting a
+`pod.Spec.TerminationGracePeriodSeconds` of 0 seconds is unsafe and strongly discouraged
+for StatefulSet Pods. Graceful deletion is safe and will ensure that the Pod
+[shuts down gracefully](/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination)
+before the kubelet deletes the name from the apiserver.
 -->
-为了让上面操作能够体面地终止 Pod，Pod **一定不能** 设置 `pod.Spec.TerminationGracePeriodSeconds` 为 0。
-将 `pod.Spec.TerminationGracePeriodSeconds` 设置为 0s 的做法是不安全的，强烈建议 StatefulSet 类型的
+为了让上面操作能够体面地终止 Pod，Pod **一定不能**设置 `pod.Spec.TerminationGracePeriodSeconds` 为 0。
+将 `pod.Spec.TerminationGracePeriodSeconds` 设置为 0 秒的做法是不安全的，强烈建议 StatefulSet 类型的
 Pod 不要使用。体面删除是安全的，并且会在 kubelet 从 API 服务器中删除资源名称之前确保
-[体面地结束 pod ](/zh-cn/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination)。
+[体面地结束 Pod](/zh-cn/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination)。
 
 <!--
-A Pod is not deleted automatically when a Node is unreachable.
+A Pod is not deleted automatically when a node is unreachable.
 The Pods running on an unreachable Node enter the 'Terminating' or 'Unknown' state after a
 [timeout](/docs/concepts/architecture/nodes/#condition).
 Pods may also enter these states when the user attempts graceful deletion of a Pod
@@ -86,14 +104,16 @@ The only ways in which a Pod in such a state can be removed from the apiserver a
 当某个节点不可达时，不会引发自动删除 Pod。
 在无法访问的节点上运行的 Pod 在
 [超时](/zh-cn/docs/concepts/architecture/nodes/#condition)
-后会进入'Terminating' 或者 'Unknown' 状态。
+后会进入 “Terminating” 或者 “Unknown” 状态。
 当用户尝试体面地删除无法访问的节点上的 Pod 时 Pod 也可能会进入这些状态。
 从 API 服务器上删除处于这些状态 Pod 的仅有可行方法如下：
 
 <!--
-   * The Node object is deleted (either by you, or by the [Node Controller](/docs/admin/node)).<br/>
-   * The kubelet on the unresponsive Node starts responding, kills the Pod and removes the entry from the apiserver.<br/>
-   * Force deletion of the Pod by the user.
+* The Node object is deleted (either by you, or by the
+  [Node Controller](/docs/concepts/architecture/nodes/#node-controller)).
+* The kubelet on the unresponsive Node starts responding, kills the Pod and removes the entry
+   from the apiserver.
+* Force deletion of the Pod by the user.
 -->
 * 删除 Node 对象（要么你来删除, 要么[节点控制器](/zh-cn/docs/concepts/architecture/nodes/#node-controller)
   来删除）
@@ -101,15 +121,21 @@ The only ways in which a Pod in such a state can be removed from the apiserver a
 * 用户强制删除 pod
 
 <!--
-The recommended best practice is to use the first or second approach. If a Node is confirmed to be dead (e.g. permanently disconnected from the network, powered down, etc), then delete the Node object. If the Node is suffering from a network partition, then try to resolve this or wait for it to resolve. When the partition heals, the kubelet will complete the deletion of the Pod and free up its name in the apiserver.
+The recommended best practice is to use the first or second approach. If a Node is confirmed
+to be dead (e.g. permanently disconnected from the network, powered down, etc), then delete
+the Node object. If the Node is suffering from a network partition, then try to resolve this
+or wait for it to resolve. When the partition heals, the kubelet will complete the deletion
+of the Pod and free up its name in the apiserver.
 -->
-推荐使用第一种或者第二种方法。如果确认节点已经不可用了 (比如，永久断开网络、断电等)，
+推荐使用第一种或者第二种方法。
+如果确认节点已经不可用了（比如，永久断开网络、断电等），
 则应删除 Node 对象。
 如果节点遇到网裂问题，请尝试解决该问题或者等待其解决。
 当网裂愈合时，kubelet 将完成 Pod 的删除并从 API 服务器上释放其名字。
 
 <!--
-Normally, the system completes the deletion once the Pod is no longer running on a Node, or the Node is deleted by an administrator. You may override this by force deleting the Pod.
+Normally, the system completes the deletion once the Pod is no longer running on a Node, or
+the Node is deleted by an administrator. You may override this by force deleting the Pod.
 -->
 通常，Pod 一旦不在节点上运行，或者管理员删除了节点，系统就会完成其删除动作。
 你也可以通过强制删除 Pod 来绕过这一机制。
@@ -117,7 +143,12 @@ Normally, the system completes the deletion once the Pod is no longer running on
 <!--
 ### Force Deletion
 
-Force deletions **do not** wait for confirmation from the kubelet that the Pod has been terminated. Irrespective of whether a force deletion is successful in killing a Pod, it will immediately free up the name from the apiserver. This would let the StatefulSet controller create a replacement Pod with that same identity; this can lead to the duplication of a still-running Pod, and if said Pod can still communicate with the other members of the StatefulSet, will violate the at most one semantics that StatefulSet is designed to guarantee.
+Force deletions **do not** wait for confirmation from the kubelet that the Pod has been terminated.
+Irrespective of whether a force deletion is successful in killing a Pod, it will immediately
+free up the name from the apiserver. This would let the StatefulSet controller create a replacement
+Pod with that same identity; this can lead to the duplication of a still-running Pod,
+and if said Pod can still communicate with the other members of the StatefulSet,
+will violate the at most one semantics that StatefulSet is designed to guarantee.
 -->
 ### 强制删除    {#force-deletion}
 
@@ -128,7 +159,9 @@ Force deletions **do not** wait for confirmation from the kubelet that the Pod h
 最多一个的语义。
 
 <!--
-When you force delete a StatefulSet pod, you are asserting that the Pod in question will never again make contact with other Pods in the StatefulSet and its name can be safely freed up for a replacement to be created.
+When you force delete a StatefulSet pod, you are asserting that the Pod in question will never
+again make contact with other Pods in the StatefulSet and its name can be safely freed up for a
+replacement to be created.
 -->
 当你强制删除 StatefulSet 类型的 Pod 时，你要确保有问题的 Pod 不会再和 StatefulSet 管理的其他
 Pod 通信并且可以安全地释放其名字以便创建替代 Pod。
@@ -152,7 +185,8 @@ kubectl delete pods <pod> --grace-period=0
 ```
 
 <!--
-If even after these commands the pod is stuck on `Unknown` state, use the following command to remove the pod from the cluster:
+If even after these commands the pod is stuck on `Unknown` state, use the following command to
+remove the pod from the cluster:
 -->
 如果在这些命令后 Pod 仍处于 `Unknown` 状态，请使用以下命令从集群中删除 Pod:
 
@@ -163,8 +197,7 @@ kubectl patch pod <pod> -p '{"metadata":{"finalizers":null}}'
 <!--
 Always perform force deletion of StatefulSet Pods carefully and with complete knowledge of the risks involved.
 -->
-请始终谨慎地执行强制删除 StatefulSet 类型的 pods，并完全了解所涉及地风险。
-
+请始终谨慎地执行强制删除 StatefulSet 类型的 Pod，并充分了解强制删除操作所涉及的风险。
 
 ## {{% heading "whatsnext" %}}
 
@@ -172,5 +205,3 @@ Always perform force deletion of StatefulSet Pods carefully and with complete kn
 Learn more about [debugging a StatefulSet](/docs/tasks/debug/debug-application/debug-statefulset/).
 -->
 进一步了解[调试 StatefulSet](/zh-cn/docs/tasks/debug/debug-application/debug-statefulset/)。
-
-

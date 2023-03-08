@@ -257,11 +257,16 @@ Pod 不是进程，而是容器运行的环境。
 {{< /note >}}
 
 <!--
-When you create the manifest for a Pod object, make sure the name specified is a valid
-[DNS subdomain name](/docs/concepts/overview/working-with-objects/names#dns-subdomain-names).
+The name of a Pod must be a valid
+[DNS subdomain](/docs/concepts/overview/working-with-objects/names#dns-subdomain-names)
+value, but this can produce unexpected results for the Pod hostname.  For best compatibility,
+the name should follow the more restrictive rules for a
+[DNS label](/docs/concepts/overview/working-with-objects/names#dns-label-names).
 -->
-当你为 Pod 对象创建清单时，要确保所指定的 Pod 名称是合法的
-[DNS 子域名](/zh-cn/docs/concepts/overview/working-with-objects/names#dns-subdomain-names)。
+Pod 的名称必须是一个合法的
+[DNS 子域](/zh-cn/docs/concepts/overview/working-with-objects/names#dns-subdomain-names)值，
+但这可能对 Pod 的主机名产生意外的结果。为获得最佳兼容性，名称应遵循更严格的
+[DNS 标签](/zh-cn/docs/concepts/overview/working-with-objects/names#dns-label-names)规则。
 
 <!-- 
 ### Pod OS
@@ -331,7 +336,7 @@ PodTemplates are specifications for creating Pods, and are included in workload 
 ### Pod 模板    {#pod-templates}
 
 {{< glossary_tooltip text="工作负载" term_id="workload" >}}资源的控制器通常使用
-**Pod 模板（Pod Template）**来替你创建 Pod 并管理它们。
+**Pod 模板（Pod Template）** 来替你创建 Pod 并管理它们。
 
 Pod 模板是包含在工作负载对象中的规范，用来创建 Pod。这类负载资源包括
 [Deployment](/zh-cn/docs/concepts/workloads/controllers/deployment/)、
@@ -457,7 +462,7 @@ Kubernetes 并不禁止你直接管理 Pod。对运行中的 Pod 的某些字段
 - Pod 更新不可以改变除 `spec.containers[*].image`、`spec.initContainers[*].image`、
   `spec.activeDeadlineSeconds` 或 `spec.tolerations` 之外的字段。
   对于 `spec.tolerations`，你只被允许添加新的条目到其中。
-- 在更新`spec.activeDeadlineSeconds` 字段时，以下两种更新操作是被允许的：
+- 在更新 `spec.activeDeadlineSeconds` 字段时，以下两种更新操作是被允许的：
 
   1. 如果该字段尚未设置，可以将其设置为一个正数；
   1. 如果该字段已经设置为一个正数，可以将其设置为一个更小的、非负的整数。
@@ -532,23 +537,8 @@ Pod 中的容器所看到的系统主机名与为 Pod 配置的 `name` 属性值
 
 <!--
 ## Privileged mode for containers
-
-In Linux, any container in a Pod can enable privileged mode using the `privileged` (Linux) flag on the [security context](/docs/tasks/configure-pod-container/security-context/) of the container spec. This is useful for containers that want to use operating system administrative capabilities such as manipulating the network stack or accessing hardware devices.
-
-If your cluster has the `WindowsHostProcessContainers` feature enabled, you can create a [Windows HostProcess pod](/docs/tasks/configure-pod-container/create-hostprocess-pod) by setting the `windowsOptions.hostProcess` flag on the security context of the pod spec. All containers in these pods must run as Windows HostProcess containers. HostProcess pods run directly on the host and can also be used to perform administrative tasks as is done with Linux privileged containers.
 -->
 ## 容器的特权模式     {#privileged-mode-for-containers}
-
-在 Linux 中，Pod 中的任何容器都可以使用容器规约中的
-[安全性上下文](/zh-cn/docs/tasks/configure-pod-container/security-context/)中的
-`privileged`（Linux）参数启用特权模式。
-这对于想要使用操作系统管理权能（Capabilities，如操纵网络堆栈和访问设备）的容器很有用。
-
-如果你的集群启用了 `WindowsHostProcessContainers` 特性，你可以使用 Pod 规约中安全上下文的
-`windowsOptions.hostProcess` 参数来创建
-[Windows HostProcess Pod](/zh-cn/docs/tasks/configure-pod-container/create-hostprocess-pod/)。
-这些 Pod 中的所有容器都必须以 Windows HostProcess 容器方式运行。
-HostProcess Pod 可以直接运行在主机上，它也能像 Linux 特权容器一样，用于执行管理任务。
 
 {{< note >}}
 <!--
@@ -556,6 +546,49 @@ Your {{< glossary_tooltip text="container runtime" term_id="container-runtime" >
 -->
 你的{{< glossary_tooltip text="容器运行时" term_id="container-runtime" >}}必须支持特权容器的概念才能使用这一配置。
 {{< /note >}}
+
+<!--
+Any container in a pod can run in privileged mode to use operating system administrative capabilities
+that would otherwise be inaccessible. This is available for both Windows and Linux.
+-->
+Pod 中的所有容器都可以在特权模式下运行，以使用原本无法访问的操作系统管理权能。
+此模式同时适用于 Windows 和 Linux。
+
+<!--
+### Linux priviledged containers
+
+In Linux, any container in a Pod can enable privileged mode using the `privileged` (Linux) flag
+on the [security context](/docs/tasks/configure-pod-container/security-context/) of the
+container spec. This is useful for containers that want to use operating system administrative
+capabilities such as manipulating the network stack or accessing hardware devices.
+-->
+### Linux 特权容器   {#linux-priviledged-containers}
+
+在 Linux 中，Pod 中的所有容器都可以使用容器规约中的
+[安全性上下文](/zh-cn/docs/tasks/configure-pod-container/security-context/)中的
+`privileged`（Linux）参数启用特权模式。
+这对于想要使用操作系统管理权能（Capabilities，如操纵网络堆栈和访问硬件设备）的容器很有用。
+
+<!--
+### Windows priviledged containers
+-->
+### Windows 特权容器   {#windows-priviledged-containers}
+
+{{< feature-state for_k8s_version="v1.26" state="stable" >}}
+
+<!--
+In Windows, you can create a [Windows HostProcess pod](/docs/tasks/configure-pod-container/create-hostprocess-pod)
+by setting the `windowsOptions.hostProcess` flag on the security context of the pod spec. All containers in these
+pods must run as Windows HostProcess containers. HostProcess pods run directly on the host and can also be used
+to perform administrative tasks as is done with Linux privileged containers. In order to use this feature, the
+`WindowsHostProcessContainers` [feature gate](/docs/reference/command-line-tools-reference/feature-gates/) must be enabled.
+-->
+在 Windows 中，你可以使用 Pod 规约中安全上下文的 `windowsOptions.hostProcess` 参数来创建
+[Windows HostProcess Pod](/zh-cn/docs/tasks/configure-pod-container/create-hostprocess-pod/)。
+这些 Pod 中的所有容器都必须以 Windows HostProcess 容器方式运行。
+HostProcess Pod 可以直接运行在主机上，它也能像 Linux 特权容器一样，用于执行管理任务。
+想要使用此特性，`WindowsHostProcessContainers`
+[特性门控](/zh-cn/docs/reference/command-line-tools-reference/feature-gates/)必须被启用。
 
 <!--
 ## Static Pods
@@ -569,7 +602,7 @@ Pods, the kubelet directly supervises each static Pod (and restarts it if it fai
 -->
 ## 静态 Pod    {#static-pods}
 
-**静态 Pod（Static Pod）**直接由特定节点上的 `kubelet` 守护进程管理，
+**静态 Pod（Static Pod）** 直接由特定节点上的 `kubelet` 守护进程管理，
 不需要 {{< glossary_tooltip text="API 服务器" term_id="kube-apiserver" >}}看到它们。
 尽管大多数 Pod 都是通过控制面（例如，{{< glossary_tooltip text="Deployment" term_id="deployment" >}}）
 来管理的，对于静态 Pod 而言，`kubelet` 直接监控每个 Pod，并在其失效时重启之。

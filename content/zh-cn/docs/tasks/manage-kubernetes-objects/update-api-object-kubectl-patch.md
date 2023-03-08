@@ -227,7 +227,7 @@ patch 策略：
     "x-kubernetes-patch-strategy": "merge"
 }
 ```
-<!-- for editors: intionally use yaml instead of json here, to prevent syntax highlight error. -->
+<!-- for editors: intentionally use yaml instead of json here, to prevent syntax highlight error. -->
 
 <!--
 And you can see the patch strategy in the
@@ -450,7 +450,7 @@ Patch your Deployment:
 修补你的 Deployment:
 
 ```shell
-kubectl patch deployment retainkeys-demo --type merge --patch-file patch-file-no-retainkeys.yaml
+kubectl patch deployment retainkeys-demo --type strategic --patch-file patch-file-no-retainkeys.yaml
 ```
 
 <!--
@@ -492,7 +492,7 @@ Patch your Deployment again with this new patch:
 使用新的 patch 重新修补 Deployment：
 
 ```shell
-kubectl patch deployment retainkeys-demo --type merge --patch-file patch-file-retainkeys.yaml
+kubectl patch deployment retainkeys-demo --type strategic --patch-file patch-file-retainkeys.yaml
 ```
 
 <!--
@@ -574,7 +574,7 @@ You can also see the `retainKeys` strategy in the [OpenApi spec](https://raw.git
     ....
 }
 ```
-<!-- for editors: intionally use yaml instead of json here, to prevent syntax highlight error. -->
+<!-- for editors: intentionally use yaml instead of json here, to prevent syntax highlight error. -->
 
 <!--
 And you can see the `retainKeys` strategy in the
@@ -639,7 +639,7 @@ kubectl patch deployment patch-demo --patch '{"spec": {"template": {"spec": {"co
 The flag `--subresource=[subresource-name]` is used with kubectl commands like get, patch,
 edit and replace to fetch and update `status` and `scale` subresources of the resources
 (applicable for kubectl version v1.24 or more). This flag is used with all the API resources
-(built-in and CRs) which has `status` or `scale` subresource. Deployment is one of the
+(built-in and CRs) that have `status` or `scale` subresource. Deployment is one of the
 examples which supports these subresources.
 
 Here's a manifest for a Deployment that has two replicas:

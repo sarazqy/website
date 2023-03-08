@@ -128,7 +128,7 @@ clients that access it.
 
 1. The Kubernetes scheduler [decides](/docs/concepts/scheduling-eviction/assign-pod-node/)
    which nodes to place pods on. There are several ways to extend scheduling, which are
-   described in the [scheduler extensions](#scheduler-extensions) section.
+   described in the [Scheduling extensions](#scheduling-extensions) section.
 
 1. Much of the behavior of Kubernetes is implemented by programs called
    {{< glossary_tooltip term_id="controller" text="controllers" >}}, that are
@@ -264,7 +264,7 @@ a way to extend Kubernetes with supports for new kinds of volumes. The volumes c
 durable external storage, or provide ephemeral storage, or they might offer a read-only interface
 to information using a filesystem paradigm.
 
-Kubernetes also includes support for [FlexVolume](/docs/concepts/storage/volumes/#flexvolume) plugins,
+Kubernetes also includes support for [FlexVolume](/docs/concepts/storage/volumes/#flexvolume-deprecated) plugins,
 which are deprecated since Kubernetes v1.23 (in favour of CSI).
 
 FlexVolume plugins allow users to mount volume types that aren't natively supported by Kubernetes. When
